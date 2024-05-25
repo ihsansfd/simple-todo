@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "tailwind-merge": "^2.3.0",
+    "vite-plugin-svgr": "^4.2.0"
+  }
+}
