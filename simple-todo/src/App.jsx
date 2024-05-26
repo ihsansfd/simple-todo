@@ -39,9 +39,9 @@ function App() {
 
   const handleOnClickCompleteSelectedTasks = () => {};
 
-  const handleOnUnselectOngoingTask = (taskId) => {
+  const handleOnUnselectOngoingTask = (taskIdToRemove) => {
     setSelectedIds(
-      selectedTaskIds.filter((prevTaskId) => prevTaskId !== taskId)
+      selectedTaskIds.filter((taskId) => taskId !== taskIdToRemove)
     );
   };
 
@@ -72,6 +72,10 @@ function App() {
       },
     ]);
   }, []);
+
+  useEffect(() => {
+    console.log(selectedTaskIds.join());
+  }, [selectedTaskIds]);
 
   return (
     <>
@@ -112,6 +116,7 @@ function App() {
           <div className="flex flex-col gap-y-5">
             {ongoingTasks.map((task) => (
               <Task
+                id={task.id}
                 key={task.id}
                 title={task.title}
                 datelineDateTime={task.datelineDateTime}

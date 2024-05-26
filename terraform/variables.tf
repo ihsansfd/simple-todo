@@ -10,39 +10,16 @@ variable "aws_region" {
   description = "The AWS region things are created in"
 }
 
-variable "ec2_task_execution_role_name" {
-  description = "ECS task execution role name"
-  default     = "myEcsTaskExecutionRole"
+variable "public_subnet_cidrs" {
+ type        = list(string)
+ description = "Public Subnet CIDR values"
+ default     = ["10.0.1.0/24"]
 }
-
-variable "ecs_auto_scale_role_name" {
-  description = "ECS auto scale role name"
-  default     = "myEcsAutoScaleRole"
-}
-
-variable "az_count" {
-  description = "Number of AZs to cover in a given region"
-  default     = "1"
-}
-
-variable "app_image" {
-  description = "Docker image to run in the ECS cluster"
-  default     = "bradfordhamilton/crystal_blockchain:latest"
-}
-
-variable "app_port" {
-  description = "Port exposed by the docker image to redirect traffic to"
-  default     = 3000
-
-}
-
-variable "app_count" {
-  description = "Number of docker containers to run"
-  default     = 3
-}
-
-variable "health_check_path" {
-  default = "/"
+ 
+variable "private_subnet_cidrs" {
+ type        = list(string)
+ description = "Private Subnet CIDR values"
+ default     = ["10.0.4.0/24"]
 }
 
 variable "fargate_cpu" {
@@ -53,4 +30,10 @@ variable "fargate_cpu" {
 variable "fargate_memory" {
   description = "Fargate instance memory to provision (in MiB)"
   default     = "1024"
+}
+
+variable "azs" {
+ type        = list(string)
+ description = "Availability Zones"
+ default     = ["us-east-1a"]
 }
