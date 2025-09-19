@@ -1,0 +1,30 @@
+name: Montly Branch Deletion
+
+on:
+  schedule:
+    # Runs monthly at 2:00 AM UTC (9:00 AM UTC+7) on the 1st day of the month
+    - cron: '0 2 1 * *'
+  workflow_dispatch: {}  # allows manual runs without inputs
+
+permissions:
+  contents: write
+
+jobs:
+  delete-old-test-branches:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Delete all remote branches prefixed with test/
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch --prune origin
+
+          # Delete branches under "test/*"
+          git ls-remote --heads origin "test/*" | while read -r _ ref; do
+            branch="${ref#refs/heads/}"
+            echo "Deleting remote branch $branch"
+            git push origin --delete "$branch" || true
+          done
