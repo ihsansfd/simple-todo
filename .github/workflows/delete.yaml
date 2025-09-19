@@ -16,15 +16,31 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Delete all remote branches prefixed with test/
+      - name: Delete remote test/* branches older than 1 month
         shell: bash
         run: |
           set -euo pipefail
           git fetch --prune origin
+          CUTOFF=$(date -d 'now - 1 month' +%s)
 
-          # Delete branches under "test/*"
-          git ls-remote --heads origin "test/*" | while read -r _ ref; do
-            branch="${ref#refs/heads/}"
-            echo "Deleting remote branch $branch"
-            git push origin --delete "$branch" || true
+          # Use 'test*' so we include nested paths like test/foo/bar/DATE
+          git ls-remote --heads origin "test*" | while read -r sha ref; do
+            branch="${ref#refs/heads/}"  # e.g., test/2025-07-01 or test/crmcase/2025-07-01
+
+            # Allow zero or more segments between 'test' and the date; capture date as group 2
+            if [[ "$branch" =~ ^test(/[^/]+)*/([0-9]{4}-[0-9]{2}-[0-9]{2})$ ]]; then
+              bdate="${BASH_REMATCH[2]}"
+              if d_epoch=$(date -d "$bdate" +%s 2>/dev/null); then
+                if (( d_epoch < CUTOFF )); then
+                  echo "Deleting remote branch $branch (date $bdate)"
+                  git push origin --delete "$branch"
+                else
+                  echo "Keeping $branch (date $bdate)"
+                fi
+              else
+                echo "Skipping $branch: invalid date $bdate"
+              fi
+            else
+              echo "Skipping $branch (does not match test/.../YYYY-MM-DD)"
+            fi
           done
